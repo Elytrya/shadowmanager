@@ -1,0 +1,603 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ShadowManager</title>
+        <style>
+            /* Общие стили */
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #000000; /* Черный */
+                color: #ffffff; /* Белый */
+                transition: background-color 0.5s ease;
+                overflow-x: hidden;
+            }
+
+            /* Стили для навигационного меню */
+            .navigation {
+                background-color: rgba(0, 0, 0, 0.5);
+                color: white;
+                padding: 10px 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                transition: background-color 0.5s ease;
+            }
+
+            .logo {
+                font-family: ShadowManager, sans-serif;
+                font-size: 24px;
+                margin-left: 20px;
+                color: #e91e63; /* Розовый */
+            }
+
+            .menu {
+                margin-right: auto; /* Выравнивание по правому краю */
+            }
+
+            .menu a {
+                color: white;
+                text-decoration: none;
+                margin-left: 20px;
+                font-size: 18px;
+            }
+
+            .login {
+                font-weight: bold;
+                margin-right: 20px;
+                cursor: pointer;
+                color: #ce1d58; /* Розовый */
+            }
+
+            /* Стили для главного содержимого */
+            .main-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start; /* Изменено на flex-start */
+                padding: 100px;
+            }
+
+            .content-left {
+                flex: 1;
+                padding-right: 50px;
+            }
+
+            .content-left h1 {
+                font-family: ShadowManager, sans-serif;
+                font-size: 48px;
+                color: #e91e63; /* Розовый */
+            }
+
+            .content-left p {
+                margin-bottom: 20px;
+            }
+
+            .content-left button {
+                padding: 15px 30px;
+                background-color: #e91e63; /* Розовый */
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 18px;
+                transition: background-color 0.3s ease;
+            }
+
+            .content-left button:hover {
+                background-color: #c2185b; /* Темно-розовый */
+            }
+
+            .content-right img {
+                max-width: 100%;
+                width: 300px;
+                height: auto;
+                animation: floating 2s infinite alternate;
+            }
+
+            @keyframes floating {
+                0% {
+                    transform: translateY(0);
+                }
+                100% {
+                    transform: translateY(-10px);
+                }
+            }
+
+            /* Стили для круглой кнопки */
+            #backgroundButton {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background-color: transparent;
+                color: #4CAF50; /* Цвет текста */
+                border: 2px solid #4CAF50; /* Рамка */
+                padding: 10px 20px;
+                cursor: pointer;
+                font-size: 16px;
+                z-index: 999;
+                transition: all 0.3s ease;
+                border-radius: 30px; /* Более круглые углы */
+                font-family: Arial, sans-serif; /* Шрифт */
+            }
+        
+            #backgroundButton:hover {
+                background-color: #4CAF50; /* Цвет фона при наведении */
+                color: white; /* Цвет текста при наведении */
+            }
+            /* Стили для блоков особенностей */
+            .features {
+                margin-top: 50px;
+                display: flex;
+                flex-direction: column;
+                gap: 20px; /* Добавлено пространство между особенностями */
+                opacity: 0;
+                transition: opacity 0.5s ease;
+            }
+
+            .features.active {
+                opacity: 1;
+            }
+
+            .feature {
+                padding: 20px;
+                background-color: #2c2c2c; /* Темно-серый */
+                border-radius: 10px;
+                display: flex;
+                width: 12000px;
+                justify-content: space-between;
+                align-items: center;
+                transition: transform 0.5s ease; /* Добавлено анимация для плавности */
+                transform: translateY(50px); /* Изначально смещаем особенности вниз */
+            }
+
+            .feature img {
+                max-width: 300px; /* Ширина изображения */
+                margin-right: 20px; /* Отступ между изображением и текстом */
+            }
+
+            .feature-content {
+                flex: 1;
+            }
+
+            .feature.active {
+                transform: translateY(0); /* При активации особенности сдвигаем вверх */
+            }
+
+            .feature h2 {
+                font-size: 24px;
+                color: #e91e63; /* Розовый */
+                margin-bottom: 10px;
+            }
+
+            .feature p {
+                color: white;
+            }
+
+            /* Дополнительные стили для светлой темы */
+            body.light {
+                background-color: #efdae5;
+                color: #666;
+            }
+
+            .navigation.light {
+                background-color: rgba(248, 240, 244, 0.5);
+                color: black;
+            }
+
+            .login.light {
+                color: #ce1d58;
+            }
+
+            .feature.light {
+                background-color: #b8b5b5; /* Серый */
+                color: #333; /* Темно-серый */
+            }
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #000000; /* Черный */
+                color: #ffffff; /* Белый */
+                transition: background-color 0.5s ease;
+                overflow-x: hidden;
+            }
+            
+    /* Стили для блоков особенностей */
+    .features {
+        margin-top: 50px;
+        display: flex;
+        flex-wrap: wrap; /* Разрешаем перенос строк для блоков особенностей */
+        justify-content: center; /* Выравниваем блоки по центру */
+        gap: 20px; /* Добавлено пространство между особенностями */
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    .features.active {
+        opacity: 1;
+    }
+
+    .feature {
+        width: 1500px; /* Ширина блока особенности */
+        padding: 20px;
+        background-color: #2c2c2c; /* Темно-серый */
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column; /* Располагаем контент вертикально */
+        align-items: center; /* Выравниваем контент по центру */
+        transition: transform 0.5s ease; /* Добавлено анимация для плавности */
+        transform: translateY(50px); /* Изначально смещаем особенности вниз */
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Добавляем тень */
+    }
+
+    .feature img {
+        max-width: 100%; /* Ширина изображения */
+        margin-bottom: 20px; /* Отступ снизу */
+    }
+
+    .feature-content {
+        text-align: center; /* Выравниваем текст по центру */
+    }
+
+    .feature.active {
+        transform: translateY(0); /* При активации особенности сдвигаем вверх */
+    }
+
+    .feature h2 {
+        font-size: 24px;
+        color: #e91e63; /* Розовый */
+        margin-bottom: 10px;
+    }
+    .feature.light {
+        background-color: #eac1cf; /* Цвет фона для светлой темы */
+        color: white; /* Цвет текста для светлой темы */
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Добавляем тень */
+    }
+    .feature p {
+        color: white;
+        margin-bottom: 20px; /* Отступ снизу */
+    }
+    .additional-info {
+        text-align: center;
+        margin-top: 50px;
+        margin: -20px;
+    }
+
+    .additional-info p {
+        color: #333; /* Цвет текста */
+        font-size: 24px; /* Размер шрифта */
+        font-weight: bold; /* Жирный шрифт */
+        margin-bottom: 10px; /* Отступ снизу */
+    }
+
+    .discord-link {
+        color: #e91e63; /* Цвет ссылки */
+        text-decoration: none; /* Убираем подчеркивание */
+        font-size: 20px; /* Размер шрифта */
+        font-weight: bold; /* Жирный шрифт */
+        transition: color 0.3s ease; /* Плавное изменение цвета при наведении */
+    }
+
+    .discord-link:hover {
+        color: #c2185b; /* Цвет ссылки при наведении */
+    }
+
+    /* Стили для текста в самом конце */
+    .footer {
+        text-align: center;
+        margin-top: 50px;
+    }
+
+    .footer p {
+        color: #666; /* Серый цвет */
+        margin-bottom: 5px;
+    }
+
+    .footer p:last-child {
+        margin-bottom: 0;
+    }
+    .cookie-popup {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.5s ease; /* добавлен переход для плавного изменения прозрачности */
+    }
+
+    .cookie-content {
+        text-align: center;
+    }
+
+    .cookie-content a {
+        color: #e91e63;
+        text-decoration: underline;
+    }
+
+    #closeCookiePopup {
+        background-color: #e91e63;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    #closeCookiePopup:hover {
+        background-color: #c2185b;
+    }
+/* Стили для кнопки политики конфиденциальности */
+.privacy-policy-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.privacy-policy-btn button {
+    background-color: #e91e63;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.privacy-policy-btn button:hover {
+    background-color: #c2185b;
+}
+
+/* Стили для уведомления о политике конфиденциальности */
+.privacy-policy-popup {
+    display: none; /* Изначально скрыть блок */
+    position: fixed;
+    bottom: 60px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.privacy-policy-content {
+    text-align: center;
+}
+
+.privacy-policy-content a {
+    color: #e91e63;
+    text-decoration: underline;
+}
+
+#closePrivacyPolicyPopup {
+    background-color: #e91e63;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+#closePrivacyPolicyPopup:hover {
+    background-color: #c2185b;
+}
+
+
+        </style>
+    </head>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();
+   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(96498309, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/96498309" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+    <body class="dark-theme">
+
+    <div class="navigation">
+        <div class="logo">ShadowManager</div>
+        <div class="menu">
+            <!-- Меню, если есть -->
+        </div>
+        <div class="login">Логин</div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-left">
+            <h1>Время добавить ShadowManager на ваш сервер!</h1>
+            <p>RolePlay. Economy. Moderation.</p>
+            <button id="addServerBtn" onclick="window.location.href = 'https://discord.com/api/oauth2/authorize?client_id=1190355118906937414&permissions=8&scope=bot';">Добавить бота</button>
+
+        </div>
+        <div class="content-right">
+            <img id="floatingImage" src="https://cdn.discordapp.com/attachments/1182034737599090800/1207667768531623966/WkCCASrdqdJtMMgCXyp-H-transformed.png?ex=65e07b41&is=65ce0641&hm=ad7468f9f9108d68dc75b6803932ac7a262d88fd0c86424586248b5c185f445f&" alt="Floating Image">
+        </div>
+    </div>
+
+    <button id="backgroundButton">Сменить тему</button>
+
+    <!-- Блоки особенностей -->
+    <div class="features">
+        <div class="feature">
+            <div class="feature-content">
+                <h2>Игры</h2>
+                <p>Представляем, камень ножницы бумага! И многие другие игры ждут вас в боте!</p>
+            </div>
+            <img src="https://cdn.discordapp.com/attachments/1182034737599090800/1208723961957978173/Discord_2pJVwqMZpW.png?ex=65e452e9&is=65d1dde9&hm=70fcf40e0ace0a49db36e2330c01c305ef5a9a841df39893c74df7ca1552e80b&" alt="Game Screenshot">
+        </div>
+        <div class="feature">
+            <div class="feature-content">
+                <h2>Защита</h2>
+                <p>Система антирейдов! Никто больше не зарейдит ваш сервер!</p>
+            </div>
+            <img src="https://cdn.discordapp.com/attachments/1182034737599090800/1208726036812931092/Discord_AKnMv8JpTe.png?ex=65e454d8&is=65d1dfd8&hm=cc740c33002b00eb6c580464038805cfd16d872a17746762c94a0c4aeac39d12&" alt="Protection Screenshot">
+        </div>
+        <div class="feature">
+            <div class="feature-content">
+                <h2>Экономика</h2>
+                <p>Экономика! Делайте роли за монеты, работайте и зарабатывайте монеты, и многое другое в боте!</p>
+            </div>
+            <img src="https://cdn.discordapp.com/attachments/1182034737599090800/1208726145864826880/image.png?ex=65e454f2&is=65d1dff2&hm=3a97891ca8f0cf49a30009706f1989878e8e07e02e86550759db7e9fb0e7f1aa&" alt="Economy Screenshot">
+        </div>
+        <div class="feature">
+            <div class="feature-content">
+                <h2>Модерация</h2>
+                <p>Модерация! Варны, баны, кики и другие команды для модерации в нашем боте!</p>
+            </div>
+            <img src="https://cdn.discordapp.com/attachments/1182034737599090800/1208726241775976459/image.png?ex=65e45509&is=65d1e009&hm=91dcbdf8c4b7d672b6e95a2f64afd0d76b229ce38995f1fedb0638af047a436e&" alt="Moderation Screenshot">
+        </div>
+        <div class="feature">
+            <div class="feature-content">
+                <h2>Система уровней</h2>
+                <p>Настраивайте, смотрите, накручивайте уровень и много другое уже есть в боте!</p>
+            </div>
+            <img src="https://cdn.discordapp.com/attachments/1182034737599090800/1208726351050440775/image.png?ex=65e45523&is=65d1e023&hm=a27044e2bfa12d4e0990eb8d9f79d77751c41927d64dafda85a1835b37d2d0a8&" alt="Leveling Screenshot">
+        </div>
+    </div>
+    <div class="additional-info">
+        <p>Остались вопросы?</p>
+        <p>Ждем вас в нашем дискорд сервере!</p>
+        <a href="https://discord.gg/MhuHrcxkd6" class="discord-link">Присоединиться</a>
+    </div>
+
+    <!-- Текст в самом конце -->
+    <div class="footer">
+        <p>© all rights reserved "ShadowManager"</p>
+        <p>Design by akita__</p>
+    </div>
+    <div class="cookie-popup" id="cookiePopup">
+        <div class="cookie-content">
+            <p>Мы используем файлы cookie для улучшения вашего опыта. <a href="cookie.html">Узнать больше</a>.</p>
+            <button id="closeCookiePopup">Принять</button>
+        </div>
+        <!-- Блок с окном политики конфиденциальности -->
+        <div class="privacy-policy-popup" id="privacyPolicyPopup">
+            <div class="privacy-policy-content">
+                <p>Прежде чем продолжить, пожалуйста, <a href="privacypolicy.html">ознакомьтесь с нашей политикой конфиденциальности</a>.</p>
+                <button id="closePrivacyPolicyPopup">Принять</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const cookiePopup = document.getElementById('cookiePopup');
+            const closeCookiePopup = document.getElementById('closeCookiePopup');
+            const privacyPolicyPopup = document.getElementById('privacyPolicyPopup');
+            const closePrivacyPolicyPopup = document.getElementById('closePrivacyPolicyPopup');
+            
+            // Показать табличку cookie с плавным появлением
+            setTimeout(function() {
+                cookiePopup.style.opacity = '1';
+            }, 2000); // Появиться через 2 секунды (можно изменить на необходимое время)
+            
+            // Закрыть табличку cookie с плавным исчезновением при нажатии на кнопку "Принять"
+            closeCookiePopup.addEventListener('click', function() {
+                cookiePopup.style.opacity = '0';
+                setTimeout(function() {
+                    cookiePopup.style.display = 'none';
+                    privacyPolicyPopup.style.display = 'block'; // Показать окно с предложением прочитать политику конфиденциальности
+                    privacyPolicyPopup.style.opacity = '1'; // Плавное появление окна
+                }, 500); // Закрыть с задержкой 0.5 секунды (для завершения анимации)
+            });
+            
+            // Закрыть окно с предложением прочитать политику конфиденциальности при нажатии на кнопку "Принять"
+            closePrivacyPolicyPopup.addEventListener('click', function() {
+                privacyPolicyPopup.style.opacity = '0';
+                setTimeout(function() {
+                    privacyPolicyPopup.style.display = 'none';
+                }, 500);
+            });
+        
+            // Показать уведомление о политике конфиденциальности после закрытия уведомления о куки-файлах
+            closeCookiePopup.addEventListener('click', function() {
+                privacyPolicyPopup.style.display = 'block';
+            });
+        });
+        
+        
+        
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            const body = document.body;
+            const features = document.querySelector('.features');
+        
+            function checkScroll() {
+                if (features.getBoundingClientRect().top < window.innerHeight * 0.75) {
+                    features.classList.add('active');
+                    window.removeEventListener('scroll', checkScroll);
+                }
+            }
+        
+            window.addEventListener('scroll', checkScroll);
+        
+            const backgroundButton = document.getElementById('backgroundButton');
+            const navigation = document.querySelector('.navigation');
+            const floatingImage = document.getElementById('floatingImage');
+        
+            backgroundButton.addEventListener('click', function() {
+                const isLightTheme = body.classList.contains('light');
+        
+                if (isLightTheme) {
+                    body.style.backgroundColor = '#000000';
+                    navigation.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                    floatingImage.src = 'https://cdn.discordapp.com/attachments/1182034737599090800/1207667768531623966/WkCCASrdqdJtMMgCXyp-H-transformed.png?ex=65e07b41&is=65ce0641&hm=ad7468f9f9108d68dc75b6803932ac7a262d88fd0c86424586248b5c185f445f&';
+                    features.classList.remove('light'); // Удалить класс light у блоков особенностей
+                } else {
+                    body.style.backgroundColor = '#f8f0f4';
+                    navigation.style.backgroundColor = '#f8f0f4';
+                    floatingImage.src = 'https://cdn.discordapp.com/attachments/1182034737599090800/1207666711797563512/WkCCASrdqdJtMMgCXyp-H-transformed.png?ex=65e07a45&is=65ce0545&hm=f09e0df73edb7bbb234c03b9436c232a2e7cc82b518c09003f4aea20823b89e4&';
+                    features.classList.add('light'); // Добавить класс light у блоков особенностей
+                }
+        
+                body.classList.toggle('light'); // Переключаем тему
+            });
+        
+            // Добавляем обработчик события для изменения цвета блоков особенностей на светлой теме
+            body.addEventListener('click', function() {
+                const isLightTheme = body.classList.contains('light');
+                const featureBlocks = document.querySelectorAll('.feature');
+        
+                if (isLightTheme) {
+                    featureBlocks.forEach(block => {
+                        block.classList.add('light');
+                    });
+                } else {
+                    featureBlocks.forEach(block => {
+                        block.classList.remove('light');
+                    });
+                }
+            });
+        });
+    </script>
+
+
+
+    </body>
+    </html>
